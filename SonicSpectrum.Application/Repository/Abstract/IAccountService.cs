@@ -10,5 +10,6 @@ namespace SonicSpectrum.Application.Repository.Abstract
         Task<OperationResult> DeleteAccount(string userId);
         Task<OperationResult> OpenProfileAsync(string userId);
         Task<OperationResult> CloseProfileAsync(string userId);
+        Task<object> GetUserInfoAsync(string userId);
     }
 }

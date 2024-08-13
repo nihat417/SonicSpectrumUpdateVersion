@@ -204,5 +204,40 @@ namespace SonicSpectrum.Application.Repository.Concrete
                 return result;
             }
         }
+
+
+        public async Task<object> GetUserInfoAsync(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) throw new ArgumentNullException(nameof(userId), "user ID cannot be null or empty.");
+            try
+            {
+                var user = await _context.Users.AsNoTracking()
+                                                .Where(u => u.Id == userId)
+                                                .Select(u => new
+                                                {
+                                                    u.Id,
+                                                    u.UserName,
+                                                    u.Age,
+                                                    u.ImageUrl,
+                                                    u.Email,
+                                                    u.IsProfileOpen,
+                                                    u.EmailConfirmed,
+                                                    Followers = u.Followers.Select(f => new { f.Id, f.FollowerId }),
+                                                    Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId }),
+                                                    Playlists = u.Playlists.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
+                                                }).FirstOrDefaultAsync();
+
+                if (user == null) throw new KeyNotFoundException($"User with ID '{userId}' not found.");
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+        }
+
+
     }
 }

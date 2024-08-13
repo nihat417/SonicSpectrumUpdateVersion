@@ -336,7 +336,6 @@ namespace SonicSpectrum.Application.Repository.Concrete
             return recommendedAlbums;
         }
 
-
         public async Task<object> SearchAsync(string query, int pageNumber, int pageSize)
         {
             if (string.IsNullOrWhiteSpace(query))
@@ -346,10 +345,9 @@ namespace SonicSpectrum.Application.Repository.Concrete
             {
                 var offset = (pageNumber - 1) * pageSize;
 
-                // Поиск по музыке
                 var tracksQuery = _context.Tracks
                     .AsNoTracking()
-                    .Where(t => t.Title.Contains(query) || t.Artist.Name.Contains(query) || t.Album.Title.Contains(query))
+                    .Where(t => t.Title.Contains(query) || t.Artist!.Name.Contains(query) || t.Album!.Title!.Contains(query))
                     .Select(t => new
                     {
                         Type = "Track",
@@ -357,11 +355,10 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         t.Title,
                         t.FilePath,
                         t.ImagePath,
-                        ArtistName = t.Artist.Name,
-                        AlbumTitle = t.Album.Title
+                        ArtistName = t.Artist!.Name,
+                        AlbumTitle = t.Album!.Title
                     });
 
-                // Поиск по исполнителям
                 var artistsQuery = _context.Artists
                     .AsNoTracking()
                     .Where(a => a.Name.Contains(query))
@@ -372,20 +369,18 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         a.Name
                     });
 
-                // Поиск по альбомам
                 var albumsQuery = _context.Albums
                     .AsNoTracking()
-                    .Where(a => a.Title.Contains(query) || a.Artist.Name.Contains(query))
+                    .Where(a => a.Title!.Contains(query) || a.Artist!.Name.Contains(query))
                     .Select(a => new
                     {
                         Type = "Album",
                         a.AlbumId,
                         a.Title,
                         a.ArtistId,
-                        ArtistName = a.Artist.Name
+                        ArtistName = a.Artist!.Name
                     });
 
-                // Поиск по плейлистам
                 var playlistsQuery = _context.Playlists
                     .AsNoTracking()
                     .Where(p => p.Name.Contains(query))
@@ -396,7 +391,17 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         p.Name
                     });
 
-                // Выполнение запросов и объединение результатов
+                var profilesQuery = _context.Users
+                    .AsNoTracking()
+                    .Where(p => p.UserName!.Contains(query) || p.FullName.Contains(query))
+                    .Select(p => new
+                    {
+                        Type = "Profile",
+                        p.Id,
+                        p.UserName,
+                        p.FullName
+                    });
+
                 var tracks = await tracksQuery
                     .Skip(offset)
                     .Take(pageSize)
@@ -417,12 +422,18 @@ namespace SonicSpectrum.Application.Repository.Concrete
                     .Take(pageSize)
                     .ToListAsync();
 
+                var profiles = await profilesQuery
+                    .Skip(offset)
+                    .Take(pageSize)
+                    .ToListAsync();
+
                 var results = new
                 {
                     Tracks = tracks,
                     Artists = artists,
                     Albums = albums,
-                    Playlists = playlists
+                    Playlists = playlists,
+                    Profiles = profiles
                 };
 
                 return results;

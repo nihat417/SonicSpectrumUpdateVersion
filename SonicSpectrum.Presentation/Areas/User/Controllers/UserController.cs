@@ -8,6 +8,31 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
     [ApiController]
     public class UserController(IUnitOfWork _unitOfWork) : ControllerBase
     {
+
+        [HttpGet("getUserInfo/{userId}")]
+        public async Task<IActionResult> GetUserInfo(string userId)
+        {
+            try
+            {
+                var userinfo = await _unitOfWork.AccountService.GetUserInfoAsync(userId);
+                if (userinfo == null) return NotFound();
+                return Ok(userinfo);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
+        }
+
         [HttpPost("follow")]
         public async Task<IActionResult> Follow([FromBody] FollowDto dto)
         {
