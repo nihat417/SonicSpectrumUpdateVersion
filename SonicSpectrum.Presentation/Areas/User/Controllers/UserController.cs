@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using IdentityManagerServerApi.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SonicSpectrum.Application.DTOs;
 using SonicSpectrum.Application.Repository.Abstract;
 
@@ -6,8 +8,32 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController(IUnitOfWork _unitOfWork) : ControllerBase
+    public class UserController(IUnitOfWork _unitOfWork, JwtTokenService _jwtTokenService) : ControllerBase
     {
+
+        [HttpGet("getMyId")]
+        [Authorize]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            var authorizationHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
+            if (authorizationHeader == null || !authorizationHeader.StartsWith("Bearer "))
+            {
+                return Unauthorized("Token is missing or invalid.");
+            }
+
+            var token = authorizationHeader.Substring("Bearer ".Length).Trim();
+
+            try
+            {
+                var userId = _jwtTokenService.GetUserIdFromToken(token);
+
+                return Ok(new { UserId = userId });
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized($"Error extracting user ID: {ex.Message}");
+            }
+        }
 
         [HttpGet("getUserInfo/{userId}")]
         public async Task<IActionResult> GetUserInfo(string userId)

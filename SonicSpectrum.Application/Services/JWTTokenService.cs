@@ -40,6 +40,33 @@ namespace IdentityManagerServerApi.Services
             return (new JwtSecurityTokenHandler().WriteToken(accessToken), new JwtSecurityTokenHandler().WriteToken(refreshToken));
         }
 
+        public string GetUserIdFromToken(string accessToken)
+        {
+            if (string.IsNullOrEmpty(accessToken))
+            {
+                throw new ArgumentNullException(nameof(accessToken), "Access token cannot be null or empty.");
+            }
+
+            var handler = new JwtSecurityTokenHandler();
+            try
+            {
+                var token = handler.ReadJwtToken(accessToken);
+
+                var userIdClaim = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+
+                if (userIdClaim == null)
+                {
+                    throw new Exception("User ID claim not found in token.");
+                }
+
+                return userIdClaim.Value;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error parsing token: {ex.Message}", ex);
+            }
+        }
+
         /*public string RefreshAccessToken(string refreshToken, UserSession user)
         {
             try
