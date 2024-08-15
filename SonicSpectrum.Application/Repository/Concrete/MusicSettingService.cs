@@ -330,8 +330,10 @@ namespace SonicSpectrum.Application.Repository.Concrete
                     a.Id,
                     a.Name,
                     a.ArtistImage,
-                    PopularityScore = a.Tracks!.Sum(t => t.ListeningStatistics!.Sum(ls => ls.TimesListened))
-                })
+                    PopularityScore = _context.Tracks
+                .Where(t => t.ArtistId == a.Id)
+                .SelectMany(t => t.ListeningStatistics)
+                .Sum(ls => ls.TimesListened)})
                 .OrderByDescending(a => a.PopularityScore)
                 .Take(10)
                 .ToListAsync();
