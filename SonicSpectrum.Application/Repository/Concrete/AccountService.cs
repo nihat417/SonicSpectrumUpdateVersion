@@ -217,6 +217,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                                 {
                                                     u.Id,
                                                     u.UserName,
+                                                    u.FullName,
                                                     u.Age,
                                                     u.ImageUrl,
                                                     u.Email,
@@ -224,7 +225,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                                     u.EmailConfirmed,
                                                     Followers = u.Followers.Select(f => new { f.Id, f.FollowerId }),
                                                     Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId }),
-                                                    Playlists = u.Playlists.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
+                                                    Playlists = u.Playlists!.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
                                                 }).FirstOrDefaultAsync();
 
                 if (user == null) throw new KeyNotFoundException($"User with ID '{userId}' not found.");

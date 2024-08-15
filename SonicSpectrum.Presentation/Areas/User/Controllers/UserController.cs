@@ -17,9 +17,7 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
         {
             var authorizationHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
             if (authorizationHeader == null || !authorizationHeader.StartsWith("Bearer "))
-            {
                 return Unauthorized("Token is missing or invalid.");
-            }
 
             var token = authorizationHeader.Substring("Bearer ".Length).Trim();
 

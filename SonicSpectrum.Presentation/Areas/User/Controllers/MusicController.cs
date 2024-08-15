@@ -113,6 +113,21 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
             }
         }
 
+        [HttpGet("getalbumInfo/{albumId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAlbumInfo(string albumId,int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var albums = await _unitOfWork.MusicSettingService.GetAlbumInfo(albumId, pageNumber, pageSize);
+                if (albums == null || ! albums.Any()) return NotFound();
+                return Ok(albums);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpGet("GetMusicForAlbum/{albumId}")]
         public async Task<ActionResult<IEnumerable<object>>> GetMusicForAlbum(string albumId, int pageNumber = 1, int pageSize = 10)
         {

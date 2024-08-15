@@ -121,6 +121,27 @@ namespace SonicSpectrum.Application.Repository.Concrete
             return albums;
         }
 
+        public async Task<IEnumerable<object>> GetAlbumInfo(string albumId, int pageNumber, int pageSize)
+        {
+            var album = await _context.Albums.FindAsync(albumId);
+            if(album == null) return Enumerable.Empty<object>();
+
+            var albumsInfo = await _context.Albums
+                                           .AsNoTracking()
+                                           .Where(album => album.AlbumId == albumId)
+                                           .Skip((pageNumber - 1) * pageSize)
+                                           .Take(pageSize)
+                                           .Select(album => new
+                                           {
+                                               album.AlbumId,
+                                               album.ArtistId,
+                                               album.Title,
+                                               album.AlbumImage,
+                                               Tracs = album.Tracks!.Select(t => new {t.TrackId,t.Title,t.ImagePath,t.FilePath})
+                                           }).ToListAsync();
+            return albumsInfo;
+        }
+
         public async Task<IEnumerable<object>> GetMusicFromAlbum(string albumId, int pageNumber, int pageSize)
         {
             var album = await _context.Albums.FindAsync(albumId);
