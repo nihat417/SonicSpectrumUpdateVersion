@@ -60,8 +60,26 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         a.ArtistImage,
                         PopularityScore = _context.Tracks
                             .Where(t => t.ArtistId == a.Id)
-                            .SelectMany(t => t.ListeningStatistics)
-                            .Sum(ls => ls.TimesListened)
+                            .SelectMany(t => t.ListeningStatistics!)
+                            .Sum(ls => ls.TimesListened),
+                        Albums = a.Albums!.Take(5)
+                            .Select(al => new
+                            {
+                                al.AlbumId,
+                                al.Title,
+                                al.AlbumImage,
+                            }).ToList(),
+                        TopTracks = _context.Tracks
+                            .Where(t => t.ArtistId == a.Id)
+                            .OrderByDescending(t => t.ListeningStatistics!.Sum(ls => ls.TimesListened))
+                            .Take(5)
+                            .Select(t => new
+                            {
+                                t.TrackId,
+                                t.Title,
+                                TotalListened = t.ListeningStatistics!.Sum(ls => ls.TimesListened)
+                            })
+                            .ToList()
                     })
                     .FirstOrDefaultAsync();
 
