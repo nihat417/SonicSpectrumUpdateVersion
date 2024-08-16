@@ -80,7 +80,7 @@ namespace SonicSpectrum.Presentation.Areas.Admin.Controllers
         }
 
         [HttpPut("editArtist/{artistId}")]
-        public async Task<IActionResult> EditArtist(string artistId, [FromBody] ArtistDTO artistDto)
+        public async Task<IActionResult> EditArtist(string artistId, [FromForm] ArtistDTO artistDto)
         {
             var result = await _unitOfWork.MusicSettingService.EditArtistAsync(artistId, artistDto);
             if (result.Success) return Ok(result.Message);

@@ -44,6 +44,39 @@ namespace SonicSpectrum.Application.Repository.Concrete
             }
         }
 
+        public async Task<object> GetArtistById(string artistId)
+        {
+            if (string.IsNullOrEmpty(artistId))
+                throw new ArgumentNullException(nameof(artistId), "Artist ID cannot be null or empty.");
+
+            try
+            {
+                var artist = await _context.Artists.AsNoTracking()
+                    .Where(a => a.Id == artistId)
+                    .Select(a => new
+                    {
+                        a.Id,
+                        a.Name,
+                        a.ArtistImage,
+                        PopularityScore = _context.Tracks
+                            .Where(t => t.ArtistId == a.Id)
+                            .SelectMany(t => t.ListeningStatistics)
+                            .Sum(ls => ls.TimesListened)
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (artist == null)
+                    throw new KeyNotFoundException($"Artist with ID '{artistId}' not found.");
+
+                return artist;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while retrieving artist with ID '{artistId}': {ex.Message}");
+                throw;
+            }
+        }
+
         public async Task<IEnumerable<object>> GetAllTracksAsync(int pageNumber, int pageSize)
         {
             var offset = (pageNumber - 1) * pageSize;
@@ -115,7 +148,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                         {
                                             album.AlbumId,
                                             album.Title,
-                                            album.ArtistId
+                                            album.ArtistId,
+                                            album.AlbumImage
                                         })
                                         .ToListAsync();
             return albums;
@@ -544,6 +578,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                 var artist = new Artist { 
                     Name = artistDto.Name,
                 };
+
 
                 artist.ArtistImage = (artistDto.ArtistImage != null) ?
                     await UploadFileHelper.UploadFile(artistDto.ArtistImage!, "artistphoto", artist.Id) :
@@ -1049,7 +1084,17 @@ namespace SonicSpectrum.Application.Repository.Concrete
                 return result;
             }
 
-            existingArtist.Name = artistDto.Name; 
+            existingArtist.Name = artistDto.Name;
+            if(artistDto.ArtistImage != null)
+            {
+                if(existingArtist.ArtistImage != "https://seventysoundst.blob.core.windows.net/artistphoto/defartistphoto.jpg")
+                    await UploadFileHelper.DeleteFile(artistId!, "artistphoto");
+
+                existingArtist.ArtistImage = (artistDto.ArtistImage != null) ?
+                        await UploadFileHelper.UploadFile(artistDto.ArtistImage!, "artistphoto", artistId) :
+                        "https://seventysoundst.blob.core.windows.net/artistphoto/defartistphoto.jpg";
+            }
+
 
             try
             {

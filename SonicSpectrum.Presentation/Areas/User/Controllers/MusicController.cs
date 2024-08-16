@@ -36,6 +36,105 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
             }
         }
 
+        [HttpGet("getArtistById/{artistId}")]
+        public async Task<IActionResult> GetArtistById(string artistId)
+        {
+            try
+            {
+                var artist = await _unitOfWork.MusicSettingService.GetArtistById(artistId);
+                if (artist == null) return NotFound();
+                return Ok(artist);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("getalbumInfo/{albumId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAlbumInfo(string albumId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var albums = await _unitOfWork.MusicSettingService.GetAlbumInfo(albumId, pageNumber, pageSize);
+                if (albums == null || !albums.Any()) return NotFound();
+                return Ok(albums);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("GetMusicForAlbum/{albumId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetMusicForAlbum(string albumId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var tracks = await _unitOfWork.MusicSettingService.GetMusicFromAlbum(albumId, pageNumber, pageSize);
+                if (tracks == null) return NotFound();
+                return Ok(tracks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("getallalbumsforartist/{artistId}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetAllAlbumsForArtist(string artistId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var albums = await _unitOfWork.MusicSettingService.GetAllAlbumsForArtistAsync(artistId, pageNumber, pageSize);
+                if (albums == null || !albums.Any()) return NotFound();
+                return Ok(albums);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("user/{userId}/playlists")]
+        public async Task<IActionResult> GetPlaylistsFromUser(string userId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var playlists = await _unitOfWork.MusicSettingService.GetPlaylistFromUser(userId, pageNumber, pageSize);
+                if (playlists == null) return NotFound();
+                else return Ok(playlists);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+
+            }
+        }
+
+        [HttpGet("playlist/{playlistId}/tracks")]
+        public async Task<IActionResult> GetMusicFromPlaylist(string playlistId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var tracks = await _unitOfWork.MusicSettingService.GetMusicFromPlaylist(playlistId, pageNumber, pageSize);
+                if (tracks == null) return NotFound();
+                else return Ok(tracks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpGet("allmusics")]
         public async Task<IActionResult> GetAllMusics(int pageNumber = 1, int pageSize = 10)
         {
@@ -82,7 +181,6 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
             }
         }
 
-
         [HttpGet("allartists")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllArtists(int pageNumber = 1, int pageSize = 10)
         {
@@ -97,84 +195,7 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [HttpGet("getallalbumsforartist/{artistId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllAlbumsForArtist(string artistId, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var albums = await _unitOfWork.MusicSettingService.GetAllAlbumsForArtistAsync(artistId, pageNumber, pageSize);
-                if (albums == null || !albums.Any()) return NotFound();
-                return Ok(albums);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpGet("getalbumInfo/{albumId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAlbumInfo(string albumId,int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var albums = await _unitOfWork.MusicSettingService.GetAlbumInfo(albumId, pageNumber, pageSize);
-                if (albums == null || ! albums.Any()) return NotFound();
-                return Ok(albums);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpGet("GetMusicForAlbum/{albumId}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetMusicForAlbum(string albumId, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var tracks = await _unitOfWork.MusicSettingService.GetMusicFromAlbum(albumId, pageNumber, pageSize);
-                if (tracks == null) return NotFound();
-                return Ok(tracks);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        [HttpGet("user/{userId}/playlists")]
-        public async Task<IActionResult> GetPlaylistsFromUser(string userId, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var playlists = await _unitOfWork.MusicSettingService.GetPlaylistFromUser(userId, pageNumber, pageSize);
-                if(playlists == null) return NotFound();
-                else return Ok(playlists);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-
-            }
-        }
-
-        [HttpGet("playlist/{playlistId}/tracks")]
-        public async Task<IActionResult> GetMusicFromPlaylist(string playlistId, int pageNumber = 1, int pageSize = 10)
-        {
-            try
-            {
-                var tracks = await _unitOfWork.MusicSettingService.GetMusicFromPlaylist(playlistId, pageNumber, pageSize);
-                if (tracks == null) return NotFound();
-                else return Ok(tracks);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-
+        
         [HttpGet("recomendedTracs")]
         public async Task<IActionResult> GetRecommendedTracks(string userId)
         {
