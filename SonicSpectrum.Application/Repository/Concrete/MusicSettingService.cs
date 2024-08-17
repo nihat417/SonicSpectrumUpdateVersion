@@ -77,6 +77,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                             {
                                 t.TrackId,
                                 t.Title,
+                                t.FilePath,
+                                t.ImagePath,
                                 TotalListened = t.ListeningStatistics!.Sum(ls => ls.TimesListened)
                             })
                             .ToList()

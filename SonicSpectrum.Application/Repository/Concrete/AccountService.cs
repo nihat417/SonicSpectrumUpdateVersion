@@ -223,6 +223,9 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                                     u.Email,
                                                     u.IsProfileOpen,
                                                     u.EmailConfirmed,
+                                                    FollowersCount = u.Followers.Count(), 
+                                                    FollowingsCount = u.Followings.Count(),
+                                                    PlaylistsCount = u.Playlists!.Count(),
                                                     Followers = u.Followers.Select(f => new { f.Id, f.FollowerId }),
                                                     Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId }),
                                                     Playlists = u.Playlists!.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
