@@ -6,13 +6,13 @@ using SonicSpectrum.Application.Repository.Abstract;
 
 namespace SonicSpectrum.Presentation.Areas.User.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController(IUnitOfWork _unitOfWork, JwtTokenService _jwtTokenService) : ControllerBase
     {
 
         [HttpGet("getMyId")]
-        [Authorize]
         public async Task<IActionResult> GetUserInfo()
         {
             var authorizationHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
@@ -55,6 +55,52 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
 
+        }
+
+        [HttpGet("getUserFollowers/{userId}")]
+        public async Task<IActionResult> GetUserFollowers(string userId)
+        {
+            try
+            {
+                var userfollowers = await _unitOfWork.AccountService.GetUserFollowers(userId);
+                if (userfollowers == null) return NotFound();
+                return Ok(userfollowers);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("getUserFollowings/{userId}")]
+        public async Task<IActionResult> GetUserFollings(string userId)
+        {
+            try
+            {
+                var userfollowings = await _unitOfWork.AccountService.GetUserFollowings(userId);
+                if (userfollowings == null) return NotFound();
+                return Ok(userfollowings);
+            }
+            catch (ArgumentNullException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPost("follow")]

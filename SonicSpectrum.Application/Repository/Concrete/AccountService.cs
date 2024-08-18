@@ -226,8 +226,6 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                                     FollowersCount = u.Followers.Count(), 
                                                     FollowingsCount = u.Followings.Count(),
                                                     PlaylistsCount = u.Playlists!.Count(),
-                                                    Followers = u.Followers.Select(f => new { f.Id, f.FollowerId }),
-                                                    Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId }),
                                                     Playlists = u.Playlists!.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
                                                 }).FirstOrDefaultAsync();
 
@@ -242,6 +240,46 @@ namespace SonicSpectrum.Application.Repository.Concrete
             }
         }
 
+        public async Task<IEnumerable<object>> GetUserFollowers(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) throw new ArgumentNullException(nameof(userId), "user ID cannot be null or empty.");
+            try
+            {
+                var userFollowers = await _context.Users.AsNoTracking()
+                                         .Where(u => u.Id == userId)
+                                         .Select(u => new
+                                         {
+                                             Followers = u.Followers.Select(f => new { f.Id, f.FollowerId,f.Follower.UserName, f.Follower.FullName, f.Follower.ImageUrl }),
+                                         }).ToListAsync();
+                return userFollowers;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+            throw new NotImplementedException();
+        }
 
+        public async Task<IEnumerable<object>> GetUserFollowings(string userId)
+        {
+            if (string.IsNullOrEmpty(userId)) throw new ArgumentNullException(nameof(userId), "user ID cannot be null or empty.");
+            try
+            {
+                var userFollowings = await _context.Users.AsNoTracking()
+                                         .Where(u => u.Id == userId)
+                                         .Select(u => new
+                                         {
+                                             Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId,f.Followee.UserName,f.Followee.FullName,f.Followee.ImageUrl }),
+                                         }).ToListAsync();
+                return userFollowings;
+            }
+            catch (Exception ex)
+            {
+                await Console.Out.WriteLineAsync(ex.Message);
+                throw;
+            }
+            throw new NotImplementedException();
+        }
     }
 }

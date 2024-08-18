@@ -11,5 +11,8 @@ namespace SonicSpectrum.Application.Repository.Abstract
         Task<OperationResult> OpenProfileAsync(string userId);
         Task<OperationResult> CloseProfileAsync(string userId);
         Task<object> GetUserInfoAsync(string userId);
+
+        Task<IEnumerable<object>> GetUserFollowers(string userId);
+        Task<IEnumerable<object>> GetUserFollowings(string userId);
     }
 }
