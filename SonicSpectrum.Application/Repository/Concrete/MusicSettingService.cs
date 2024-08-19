@@ -262,6 +262,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                             track.FilePath,
                                             track.ImagePath,
                                             track.ArtistId,
+                                            artistName = track.Artist!.Name,
                                             track.AlbumId
                                         })
                                         .ToListAsync();
