@@ -444,7 +444,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                     {
                         Type = "Artist",
                         a.Id,
-                        a.Name
+                        a.Name,
+                        a.ArtistImage,
                     });
 
                 var albumsQuery = _context.Albums
@@ -456,7 +457,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         a.AlbumId,
                         a.Title,
                         a.ArtistId,
-                        ArtistName = a.Artist!.Name
+                        ArtistName = a.Artist!.Name,
+                        a.AlbumImage,
                     });
 
                 var playlistsQuery = _context.Playlists
@@ -466,7 +468,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                     {
                         Type = "Playlist",
                         p.PlaylistId,
-                        p.Name
+                        p.Name,
+                        p.PlaylistImage,
                     });
 
                 var profilesQuery = _context.Users
@@ -477,7 +480,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                         Type = "Profile",
                         p.Id,
                         p.UserName,
-                        p.FullName
+                        p.FullName,
+                        p.ImageUrl,
                     });
 
                 var tracks = await tracksQuery
