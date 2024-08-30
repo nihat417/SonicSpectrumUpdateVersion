@@ -54,7 +54,7 @@ namespace SonicSpectrum.Application.Repository.Abstract
         Task<IEnumerable<object>> GetAlbumInfo(string albumId, int pageNumber, int pageSize);
         Task<IEnumerable<object>> GetMusicFromPlaylist(string playlistId, int pageNumber, int pageSize);
         Task<IEnumerable<object>> GetPlaylistFromUser(string userId, int pageNumber, int pageSize);
-        Task<object> SearchAsync(string query, int pageNumber, int pageSize);
+        Task<object> SearchAsync(string query, int pageNumber, int pageSize, string userId);
 
         Task<IEnumerable<object>> GetRandomTracks();
 

@@ -414,7 +414,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
             return recommendedAlbums;
         }
 
-        public async Task<object> SearchAsync(string query, int pageNumber, int pageSize)
+        public async Task<object> SearchAsync(string query, int pageNumber, int pageSize, string userId)
         {
             if (string.IsNullOrWhiteSpace(query))
                 throw new ArgumentNullException(nameof(query), "Search query cannot be null or empty.");
@@ -474,7 +474,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
 
                 var profilesQuery = _context.Users
                     .AsNoTracking()
-                    .Where(p => p.UserName!.Contains(query) || p.FullName.Contains(query))
+                    .Where(p => (p.UserName!.Contains(query) || p.FullName.Contains(query)) && p.Id != userId)
                     .Select(p => new
                     {
                         Type = "Profile",
