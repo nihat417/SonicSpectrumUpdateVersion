@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using SonicSpectrum.Application.DTOs;
 using SonicSpectrum.Application.Repository.Abstract;
+using SonicSpectrum.Application.Repository.Concrete;
+using SonicSpectrum.Domain.Entities;
 
 namespace SonicSpectrum.Presentation.Areas.User.Controllers
 {
@@ -9,7 +11,7 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class MusicController (IUnitOfWork _unitOfWork) : ControllerBase
+    public class MusicController(IUnitOfWork _unitOfWork) : ControllerBase
     {
         #region getmethods
 
@@ -135,7 +137,22 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
             }
         }
 
-        [HttpGet("allmusics")]
+        [HttpGet("geAllInfoPlaylistById/{playlistId}")]
+        public async Task<IActionResult> GetAllInfoPlaylistById(string playlistId,int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var tracks = await _unitOfWork.MusicSettingService.GetAllInfoPlaylistById(playlistId, pageNumber, pageSize);
+                if (tracks == null) return NotFound();
+                else return Ok(tracks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+    [HttpGet("allmusics")]
         public async Task<IActionResult> GetAllMusics(int pageNumber = 1, int pageSize = 10)
         {
             try

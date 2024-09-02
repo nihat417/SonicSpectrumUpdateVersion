@@ -6,6 +6,7 @@ using SonicSpectrum.Application.Repository.Abstract;
 using SonicSpectrum.Application.Services;
 using SonicSpectrum.Domain.Entities;
 using SonicSpectrum.Persistence.Data;
+using System.Diagnostics;
 
 namespace SonicSpectrum.Application.Repository.Concrete
 {
@@ -242,6 +243,39 @@ namespace SonicSpectrum.Application.Repository.Concrete
                 throw new Exception($"Error occurred while retrieving artists: {ex.Message}");
             }
         }
+
+        public async Task<IEnumerable<object>> GetAllInfoPlaylistById(string playlistId, int pageNumber, int pageSize)
+        {
+            var playlistIds = await _context.Playlists.FindAsync(playlistId);
+            if (playlistIds == null) return Enumerable.Empty<object>();
+
+            var playlist = await _context.Playlists
+                                         .AsNoTracking()
+                                         .Where(p => p.PlaylistId == playlistId)
+                                         .Skip((pageNumber - 1) * pageSize)
+                                         .Take(pageSize)
+                                         .Select(p => new
+                                         {
+                                             p.PlaylistId,
+                                             p.Name,
+                                             p.PlaylistImage,
+                                             p.User!.UserName,
+                                             playlistTracks = playlistIds.Tracks!.Select(pTrack => new
+                                             {
+                                                 pTrack.TrackId,
+                                                 pTrack.Title,
+                                                 pTrack.FilePath,
+                                                 pTrack.ImagePath,
+                                                 pTrack.ArtistId,
+                                                 artistName = pTrack.Artist!.Name,
+                                                 pTrack.AlbumId
+                                             }).ToList()
+                                         })
+                                         .ToListAsync();
+
+            return playlist;
+        }
+
 
         public async Task<IEnumerable<object>> GetMusicFromPlaylist(string playlistId, int pageNumber, int pageSize)
         {

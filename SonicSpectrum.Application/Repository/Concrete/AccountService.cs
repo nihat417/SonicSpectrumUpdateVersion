@@ -223,8 +223,8 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                                     u.Email,
                                                     u.IsProfileOpen,
                                                     u.EmailConfirmed,
-                                                    FollowersCount = u.Followers.Count(), 
-                                                    FollowingsCount = u.Followings.Count(),
+                                                    FollowersCount = u.Followers.Count(f => f.RequestStatus == "Accepted"),
+                                                    FollowingsCount = u.Followings.Count(f => f.RequestStatus == "Accepted"),
                                                     PlaylistsCount = u.Playlists!.Count(),
                                                     Playlists = u.Playlists!.Select(p => new { p.PlaylistId, p.Name, p.PlaylistImage })
                                                 }).FirstOrDefaultAsync();
@@ -249,7 +249,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                          .Where(u => u.Id == userId)
                                          .Select(u => new
                                          {
-                                             Followers = u.Followers.Select(f => new { f.Id, f.FollowerId,f.Follower.UserName, f.Follower.FullName, f.Follower.ImageUrl }),
+                                             Followers = u.Followers.Select(f => new { f.Id, f.FollowerId,f.Follower.UserName, f.Follower.FullName, f.Follower.ImageUrl, f.RequestStatus, f.RequestedDate }),
                                          }).ToListAsync();
                 return userFollowers;
             }
@@ -270,7 +270,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                          .Where(u => u.Id == userId)
                                          .Select(u => new
                                          {
-                                             Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId,f.Followee.UserName,f.Followee.FullName,f.Followee.ImageUrl }),
+                                             Followings = u.Followings.Select(f => new { f.Id, f.FolloweeId,f.Followee.UserName,f.Followee.FullName,f.Followee.ImageUrl,f.RequestStatus,f.RequestedDate }),
                                          }).ToListAsync();
                 return userFollowings;
             }
