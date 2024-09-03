@@ -8,6 +8,8 @@
         public string? ImagePath { get; set; }
         public string? ArtistId { get; set; }
         public string? AlbumId { get; set; }
+        public string? GenreId { get; set; }
+
         public virtual Artist? Artist { get; set; }
         public virtual Album? Album { get; set; }
         public virtual ICollection<Lyric>? Lyrics { get; set; }

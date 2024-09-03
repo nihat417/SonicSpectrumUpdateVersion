@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SonicSpectrum.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class miq : Migration
+    public partial class MigrationOne : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -183,23 +183,11 @@ namespace SonicSpectrum.Persistence.Migrations
                     Id = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RequestedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AcceptedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RequestStatus = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ArtistId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ArtistId1 = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    RequestStatus = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Follows", x => new { x.FollowerId, x.FolloweeId });
-                    table.ForeignKey(
-                        name: "FK_Follows_Artists_ArtistId",
-                        column: x => x.ArtistId,
-                        principalTable: "Artists",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Follows_Artists_ArtistId1",
-                        column: x => x.ArtistId1,
-                        principalTable: "Artists",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Follows_AspNetUsers_FolloweeId",
                         column: x => x.FolloweeId,
@@ -310,7 +298,8 @@ namespace SonicSpectrum.Persistence.Migrations
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ImagePath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ArtistId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    AlbumId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    AlbumId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    GenreId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -488,16 +477,6 @@ namespace SonicSpectrum.Persistence.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Follows_ArtistId",
-                table: "Follows",
-                column: "ArtistId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Follows_ArtistId1",
-                table: "Follows",
-                column: "ArtistId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Follows_FolloweeId",

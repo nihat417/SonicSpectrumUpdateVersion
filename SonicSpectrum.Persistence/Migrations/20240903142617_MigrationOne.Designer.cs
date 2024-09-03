@@ -12,8 +12,8 @@ using SonicSpectrum.Persistence.Data;
 namespace SonicSpectrum.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240810160418_MiqrationOne")]
-    partial class MiqrationOne
+    [Migration("20240903142617_MigrationOne")]
+    partial class MigrationOne
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -371,6 +371,9 @@ namespace SonicSpectrum.Persistence.Migrations
 
                     b.Property<string>("FilePath")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GenreId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImagePath")

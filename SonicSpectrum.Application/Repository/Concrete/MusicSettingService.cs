@@ -792,11 +792,15 @@ namespace SonicSpectrum.Application.Repository.Concrete
                     return result;
                 }
 
+                var genre = await _context.Genres.FirstOrDefaultAsync(g => g.GenreId == trackDto.GenreId);
+
+
                 var track = new Track
                 {
                     Title = trackDto.Title,
                     ArtistId = trackDto.ArtistId,
                     AlbumId = trackDto.AlbumId,
+                    GenreId = trackDto.GenreId,
                 };
 
                 track.FilePath = await UploadFileHelper.UploadFile(trackDto.FilePath, "musicplay", track.TrackId);
@@ -820,7 +824,6 @@ namespace SonicSpectrum.Application.Repository.Concrete
                 {
                     foreach (var genreName in trackDto.GenreNames)
                     {
-                        var genre = await _context.Genres.FirstOrDefaultAsync(g => g.Name == genreName);
                         if (genre != null)
                             track.Genres.Add(genre);
                     }
