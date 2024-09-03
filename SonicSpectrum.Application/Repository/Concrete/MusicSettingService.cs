@@ -276,7 +276,6 @@ namespace SonicSpectrum.Application.Repository.Concrete
             return playlist;
         }
 
-
         public async Task<IEnumerable<object>> GetMusicFromPlaylist(string playlistId, int pageNumber, int pageSize)
         {
             var playlist = await _context.Playlists.FindAsync(playlistId);
@@ -446,6 +445,57 @@ namespace SonicSpectrum.Application.Repository.Concrete
 
             var recommendedAlbums = albums.OrderBy(x => random.Next()).Take(10).ToList();
             return recommendedAlbums;
+        }
+
+        public async Task<IEnumerable<object>> GetAllGenres(int pageNumber, int pageSize)
+        {
+            try
+            {
+                var genres = await _context.Genres.AsNoTracking()
+                                            .OrderBy(a => a.Name)
+                                            .Skip((pageNumber - 1) * pageSize)
+                                            .Take(pageSize)
+                                            .Select(g => new
+                                            {
+                                                g.GenreId,
+                                                g.Name,
+                                                g.GenreImage,
+                                            }).ToListAsync();
+                return genres;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred while retrieving genres: {ex.Message}");
+            }
+        }
+
+        public async Task<IEnumerable<object>> GetGenresTracksById(string genreId, int pageNumber, int pageSize)
+        {
+            var genreids = await _context.Genres.FindAsync(genreId);
+            if (genreids == null) return Enumerable.Empty<object>();
+
+            try
+            {
+                var genreTracks = await _context.Genres.AsNoTracking()
+                                                       .Where(g => g.GenreId == genreId)
+                                                       .Skip((pageNumber - 1) * pageSize)
+                                                       .Take(pageSize)
+                                                       .Select(g => new
+                                                       {
+                                                           g.GenreId,
+                                                           g.Name,
+                                                           g.GenreImage,
+                                                           tracksCount = g.Tracks!.Count(),
+                                                           tracks = g.Tracks!.Select(t=> new {t.TrackId,t.ImagePath,t.FilePath,t.ArtistId,t.Artist!.Name,}).ToList()
+                                                       }).ToListAsync();
+
+                return genreTracks;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error occurred while retrieving genre tracks: {ex.Message}");
+            }
+
         }
 
         public async Task<object> SearchAsync(string query, int pageNumber, int pageSize, string userId)

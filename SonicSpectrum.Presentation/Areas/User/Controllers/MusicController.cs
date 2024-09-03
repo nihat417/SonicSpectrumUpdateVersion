@@ -152,13 +152,43 @@ namespace SonicSpectrum.Presentation.Areas.User.Controllers
             }
         }
 
-    [HttpGet("allmusics")]
+        [HttpGet("getGenresTracksById/{genreId}")]
+        public async Task<IActionResult> GetGenresTracksById(string genreId, int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var genreTracks = await _unitOfWork.MusicSettingService.GetGenresTracksById(genreId, pageNumber, pageSize);
+                if(genreTracks == null) return NotFound();
+                else return Ok(genreTracks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("allmusics")]
         public async Task<IActionResult> GetAllMusics(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
                 var tracks = await _unitOfWork.MusicSettingService.GetAllTracksAsync(pageNumber, pageSize);
                 return Ok(tracks);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal server error: " + ex.Message);
+            }
+        }
+
+        [HttpGet("allGenres")]
+        public async Task<IActionResult> GetAllGenres(int pageNumber = 1, int pageSize = 10)
+        {
+            try
+            {
+                var genres = await _unitOfWork.MusicSettingService.GetAllGenres(pageNumber, pageSize);
+                if(genres == null) return NotFound();
+                else return Ok(genres);
             }
             catch (Exception ex)
             {
