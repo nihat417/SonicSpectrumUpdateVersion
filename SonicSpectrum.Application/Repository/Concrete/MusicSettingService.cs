@@ -79,6 +79,7 @@ namespace SonicSpectrum.Application.Repository.Concrete
                                 t.TrackId,
                                 t.Title,
                                 t.FilePath,
+                                ArtistName = t.Artist!.Name,
                                 t.ImagePath,
                                 TotalListened = t.ListeningStatistics!.Sum(ls => ls.TimesListened)
                             })
@@ -471,32 +472,34 @@ namespace SonicSpectrum.Application.Repository.Concrete
 
         public async Task<IEnumerable<object>> GetGenresTracksById(string genreId, int pageNumber, int pageSize)
         {
-            var genreids = await _context.Genres.FindAsync(genreId);
-            if (genreids == null) return Enumerable.Empty<object>();
+            var genre = await _context.Genres.FindAsync(genreId);
+
+            if (genre == null) return Enumerable.Empty<object>();
 
             try
             {
-                var genreTracks = await _context.Genres.AsNoTracking()
-                                                       .Where(g => g.GenreId == genreId)
-                                                       .Skip((pageNumber - 1) * pageSize)
-                                                       .Take(pageSize)
-                                                       .Select(g => new
-                                                       {
-                                                           g.GenreId,
-                                                           g.Name,
-                                                           g.GenreImage,
-                                                           tracksCount = g.Tracks!.Count(),
-                                                           tracks = g.Tracks!.Select(t=> new {t.TrackId,t.ImagePath,t.FilePath,t.ArtistId,t.Artist!.Name,}).ToList()
-                                                       }).ToListAsync();
+                var tracks = await _context.Tracks.AsNoTracking()
+                                                  .Where(t => t.GenreId == genreId)
+                                                  .Skip((pageNumber - 1) * pageSize)
+                                                  .Take(pageSize)
+                                                  .Select(t => new
+                                                  {
+                                                      t.TrackId,
+                                                      t.Title,
+                                                      t.FilePath,
+                                                      t.ImagePath,
+                                                      ArtistName = t.Artist!.Name,
+                                                      t.GenreId,
+                                                  }).ToListAsync();
 
-                return genreTracks;
+               return tracks;
             }
             catch (Exception ex)
             {
                 throw new Exception($"Error occurred while retrieving genre tracks: {ex.Message}");
             }
-
         }
+
 
         public async Task<object> SearchAsync(string query, int pageNumber, int pageSize, string userId)
         {
