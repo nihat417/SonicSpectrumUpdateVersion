@@ -98,7 +98,7 @@ namespace SonicSpectrum.Infrastructure.Extensions
         {
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(configuration.GetConnectionString("azureDefnew") ??
+                options.UseSqlServer(configuration.GetConnectionString("azureDefnew2") ??
                     throw new InvalidOperationException("Connection String is not found"));
             });
 
